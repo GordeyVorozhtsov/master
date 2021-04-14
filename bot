@@ -1,0 +1,21 @@
+import telebot
+import random
+
+token = '1650506446:AAHsl-AOSUstRDKv5LqmhN8Ahdk1RHhjMjM'
+bot = telebot.TeleBot(token)
+
+@bot.message_handler(commands=['start'])
+def start_message(message):
+    keyboard = telebot.types.ReplyKeyboardMarkup(True)
+    keyboard.row('Тык!')
+    bot.send_message(message.chat.id, 'Привет!', reply_markup=keyboard)
+    
+@bot.message_handler(content_types=['text'])
+def handler(message):
+   love = ['👁Я люблю тебя за твои глаза!👁', 'Я люблю тебя за твои губы!👄', 'Я люблю тебя за твои ноги!🦵', 'Я люблю тебя за твои волосы!💇🏻‍♀️', 'Я люблю тебя за твой смех!👅', 'я люблю тебя за твой юмор!💩', 'Ты очень милая!🦋 ', 'У тебя красивый носик!👃']
+   if message.text == "Тык!":
+       bot.send_message(message.chat.id, random.choice(love))
+   else:
+       bot.send_message(message.chat.id, "Я не придумал, что на это ответить, лучше напиши Тык! или нажми на такую кнопку рядом с клавиатурой.")
+bot.polling()
+
