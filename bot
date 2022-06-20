@@ -1,21 +1,35 @@
 import telebot
-import random
+import requests
+from telebot import types
+from aiogram import Bot, Dispatcher, executor, types
 
-token = '1650506446:AAHsl-AOSUstRDKv5LqmhN8Ahdk1RHhjMjM'
-bot = telebot.TeleBot(token)
+#API
+bot = telebot.TeleBot('5587873053:AAFkm6mc9tJ3XMAj8-l1Wi0Ay7LGU9HDkM4')
 
+#проверка на работоспособность API в терминал
+response_chek=requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+if response_chek.ok:
+    print ('work')
+else:
+    print ('не work')
+
+#Ответ на старт
 @bot.message_handler(commands=['start'])
-def start_message(message):
-    keyboard = telebot.types.ReplyKeyboardMarkup(True)
-    keyboard.row('Тык!')
-    bot.send_message(message.chat.id, 'Привет!', reply_markup=keyboard)
-    
-@bot.message_handler(content_types=['text'])
-def handler(message):
-   love = ['👁Я люблю тебя за твои глаза!👁', 'Я люблю тебя за твои губы!👄', 'Я люблю тебя за твои ноги!🦵', 'Я люблю тебя за твои волосы!💇🏻‍♀️', 'Я люблю тебя за твой смех!👅', 'я люблю тебя за твой юмор!💩', 'Ты очень милая!🦋 ', 'У тебя красивый носик!👃']
-   if message.text == "Тык!":
-       bot.send_message(message.chat.id, random.choice(love))
-   else:
-       bot.send_message(message.chat.id, "Я не придумал, что на это ответить, лучше напиши Тык! или нажми на такую кнопку рядом с клавиатурой.")
-bot.polling()
+def start(message, res=False):
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    button = types.KeyboardButton('курс')
+    markup.add(button)
+    bot.send_message(message.chat.id, 'Бот сделан специально для мониторинга курса BTC и ETH от @linuxuser11 для @linuxuser11. \nЧтобы начать пользоваться - просто нажми на кнопку или отправь любое сообщение. ', reply_markup=[markup])
 
+#Ответ на кнопку или сообщение 
+@bot.message_handler(content_types=['text'])
+def responseToUser(message):
+    resBTC = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+    resETH = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT')
+    jsonBTC = resBTC.json()
+    jsonETH = resETH.json()
+    jsonBTC = round(float(jsonBTC['price']), 2)
+    jsonETH = round(float(jsonETH['price']), 2)
+    bot.send_message(message.chat.id, 'BTCUSDT = $' + str(jsonBTC) + '\nETHUSDT = $' + str(jsonETH))
+
+bot.polling(none_stop=True)
