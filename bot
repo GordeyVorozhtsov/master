@@ -4,7 +4,7 @@ from telebot import types
 from aiogram import Bot, Dispatcher, executor, types
 
 #API
-bot = telebot.TeleBot('5587873053:AAFkm6mc9tJ3XMAj8-l1Wi0Ay7LGU9HDkM4')
+bot = telebot.TeleBot(TOKEN)
 
 #проверка на работоспособность API в терминал
 response_chek=requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
