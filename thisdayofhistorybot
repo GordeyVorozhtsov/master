@@ -1,0 +1,40 @@
+# http://numbersapi.com/<number>/<type> number — число, а type — тип факта (trivia — факт из жизни, math — математический факт, date и year — вопрос про дату (в формате MM/DD) и год). Например, получить факт о 25 октября можно по
+#запросу http://numbersapi.com/10/25/date: October 25th is the day in 1760 that George III becomes King of Great Britain.
+import telebot
+import requests
+from telebot import types
+from aiogram import Bot, Dispatcher, executor, types
+from googletrans import Translator
+from datetime import date
+
+#API
+bot = telebot.TeleBot('')
+
+#проверка на работоспособность API в терминал
+response_chek=requests.get('http://numbersapi.com/01/01/date')
+if response_chek.ok:
+    print ('API work')
+else:
+    print ('не work') 
+
+translator = Translator()
+today = date.today()
+
+#Ответ на старт
+@bot.message_handler(commands=['start'])
+def start(message, res=False):
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    button = types.KeyboardButton('Факт!')
+    markup.add(button)
+    bot.send_message(message.chat.id, 'Посмотри, что было в этот день в истории!🧐\nИз-за некачественного перевода бот отправляет факт на русском и на английском языке.\n🇷🇺 + 🇺🇸', reply_markup=[markup])
+
+#Ответ на кнопку или сообщение 
+@bot.message_handler(content_types=['text'])
+def responseToUser(message):
+    request = requests.get('http://numbersapi.com/' + str(today.month) + '/' + str(today.day) + '/date')
+    fact_of_day_en = translator.translate(request.text, src='en')
+    fact_of_day_russ = translator.translate(request.text, src='en', dest='russian')
+    bot.send_message(message.chat.id, fact_of_day_en.text)  
+    bot.send_message(message.chat.id, fact_of_day_russ.text)   
+
+bot.polling(none_stop=True, interval=0)
